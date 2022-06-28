@@ -24,10 +24,10 @@ async function init() {
 
 function createHTML(product) {
   console.log(product);
+  //attribut href
   let productLink = document.createElement("a");
   document.querySelector(".items").appendChild(productLink);
-  //attribut href
-  productLink.href = product.imageUrl;
+  productLink.href = "./product.html?id=" + product._id;
   // élément "article"
   productArticle = document.createElement("article");
   productLink.appendChild(productArticle);
@@ -44,6 +44,6 @@ function createHTML(product) {
   // description "p"
   productDescription = document.createElement("p");
   productArticle.appendChild(productDescription);
-  productDescription.classList.add("productName");
+  productDescription.classList.add("productDescription");
   productDescription.innerHTML = product.description;
 }
