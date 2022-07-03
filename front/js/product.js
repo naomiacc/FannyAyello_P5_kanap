@@ -1,6 +1,11 @@
-// Récupération de l'article séléctionné via l'API
-function getArticle() {
-  return fetch("http://localhost:3000/api/products/${id}")
+// On pointe sur l'élément item du document
+const elementItems = document.querySelector("item");
+
+// Récupération de l'ID du produit dans l'API
+function getProductById() {
+  let params = new URL(document.location).searchParams;
+  let id = params.get("id");
+  return fetch(`http://localhost:3000/api/products/${id}`)
     .then((res) => res.json())
     .then((data) => {
       return data;
@@ -10,38 +15,46 @@ function getArticle() {
     });
 }
 
-// Création des éléments de l'article séléctionné dans le DOM
+console.log(location);
+
+// Passage de paramètre product entre init et builProduct
 
 init();
 async function init() {
-  product = await getArticle();
-  product.forEach((article) => {
-    createHTML(article);
-  });
+  product = await getProductById();
+  builProduct(product);
 }
 
-function createdHTML(article) {
-  console.log(article);
-  // image
-  productImg = document.createArticle("img");
-  productArticle.appendChild(productImg);
+// Création des éléments du produit dans le DOM
+
+function builProduct(product) {
+  console.log(product);
+
+  //image
+  let itemImg = document.querySelector(".item__img");
+  let productImg = document.createElement("img");
+  itemImg.appendChild(productImg);
   productImg.src = product.imageUrl;
   productImg.alt = product.altText;
-  // titre
-  productTitle = document.crateArticle("title");
+
+  //nom
+  let productTitle = document.getElementById("title");
   productTitle.innerHTML = product.name;
+
   //prix
-  productPrice = document.crateArticle("price");
+  let productPrice = document.getElementById("price");
   productPrice.innerHTML = product.price;
+
   //description
-  productDescription = document.crateArticle("description");
+  let productDescription = document.getElementById("description");
   productDescription.innerHTML = product.description;
-  // choix des couleurs
-  const productColors = document.crateArticle("colors");
+
+  //choix des couleurs
+  const productColorsChoice = document.getElementById("colors");
   for (let i = 0; i < product.colors.length; i++) {
-    const colorChoice = document.createArticle("option");
+    const colorChoice = document.createElement("option");
     colorChoice.value = product.colors[i];
     colorChoice.innerHTML = product.colors[i];
-    productColors.appendChild(colorChoice);
+    productColorsChoice.appendChild(colorChoice);
   }
 }
