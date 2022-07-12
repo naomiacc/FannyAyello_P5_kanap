@@ -24,6 +24,9 @@ async function init() {
   product = await getProductById();
   builProduct(product);
 
+  eventCreation();
+  createErrorMsgHTMLElement();
+
   // Ajout de l'événement sur le bouton "ajouter au panier"
   const button = document.getElementById("addToCart");
   button.addEventListener("click", (event) => {
@@ -65,6 +68,40 @@ function builProduct(product) {
   }
 }
 
+// Vérification de la quantité selectionnée
+
+let numberInput = document.getElementById("quantity");
+
+function eventCreation() {
+  document.getElementById("addToCart").addEventListener("click", checkNumber);
+}
+
+function createErrorMsgHTMLElement() {
+  let errorElement = document.createElement("div");
+  errorElement.setAttribute("id", "error-msg");
+  numberInput.after(errorElement);
+}
+
+function checkNumber() {
+  // On suppose que tout est bon, donc on cache les erreurs au début
+  hideError();
+  if (numberInput.value > 99) {
+    displayError("too large number");
+  } else if (numberInput.value < 1) {
+    displayError("too small number");
+  }
+}
+
+function displayError(msg) {
+  let errorElement = document.getElementById("error-msg");
+  errorElement.innerText = msg;
+}
+
+function hideError() {
+  let errorElement = document.getElementById("error-msg");
+  errorElement.innerText = "";
+}
+
 //Création du ShoppingItem
 class ShoppingItem {
   constructor(id, option, quantity) {
@@ -93,11 +130,7 @@ function addToCart(event, product) {
 
 //Message d'alerte pour valider l'ajout du produit au panier
 const popupConfirmation = () => {
-  if (window.confirm(`Le produit a été ajouté au panier`)) {
-    window.location.href = "cart.html";
-  } else {
-    window.location.href = "index.html";
-  }
+  window.alert(`Le produit a été ajouté au panier`);
 };
 
 //Création du localStorage
@@ -107,18 +140,16 @@ function saveDataLS(shoppingItem) {
   );
   console.log(shoppingCartLocalStorage);
 
-  // Si produit déjà enregistré
+  // Si produit déjà enregistré dans le panier
   if (shoppingCartLocalStorage) {
     let result = productChecked(shoppingCartLocalStorage, shoppingItem);
     localStorage.setItem("shoppingCart", JSON.stringify(result));
     console.log(result);
     popupConfirmation();
+  }
 
-    // Si aucun produit
-  } else if (
-    shoppingCartLocalStorage == null ||
-    shoppingCartLocalStorage == []
-  ) {
+  // Si le produit n'a pas encore été enregistré dans le panier
+  else if (shoppingCartLocalStorage == null || shoppingCartLocalStorage == []) {
     console.log(shoppingItem);
     console.log(shoppingCartLocalStorage);
 
@@ -132,6 +163,7 @@ function saveDataLS(shoppingItem) {
     popupConfirmation();
   }
 }
+
 // Fonction pour éviter les doublons dans la panier
 function productChecked(shoppingCartLocalStorage, shoppingItem) {
   const object = shoppingCartLocalStorage.find(
