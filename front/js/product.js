@@ -24,12 +24,11 @@ async function init() {
   product = await getProductById();
   builProduct(product);
 
-  eventCreation();
   createErrorMsgHTMLElement();
 
   // Ajout de l'événement sur le bouton "ajouter au panier"
   const button = document.getElementById("addToCart");
-  button.addEventListener("click", (event) => {
+  button.addEventListener("click", checkNumber, (event) => {
     addToCart(event, product);
   });
 }
@@ -68,26 +67,31 @@ function builProduct(product) {
   }
 }
 
-// Vérification de la quantité selectionnée
-
-let numberInput = document.getElementById("quantity");
-
-function eventCreation() {
-  document.getElementById("addToCart").addEventListener("click", checkNumber);
+//Création du ShoppingItem
+class ShoppingItem {
+  constructor(id, option, quantity) {
+    this.id = id;
+    this.option = option;
+    this.quantity = quantity;
+  }
 }
+const quantity = document.getElementById("quantity");
+const option = document.getElementById("colors");
+
+// Vérification de la quantité selectionnée
 
 function createErrorMsgHTMLElement() {
   let errorElement = document.createElement("div");
   errorElement.setAttribute("id", "error-msg");
-  numberInput.after(errorElement);
+  quantity.after(errorElement);
 }
 
 function checkNumber() {
   // On suppose que tout est bon, donc on cache les erreurs au début
   hideError();
-  if (numberInput.value > 99) {
+  if (quantity.value > 99) {
     displayError("too large number");
-  } else if (numberInput.value < 1) {
+  } else if (quantity.value < 1) {
     displayError("too small number");
   }
 }
@@ -101,17 +105,6 @@ function hideError() {
   let errorElement = document.getElementById("error-msg");
   errorElement.innerText = "";
 }
-
-//Création du ShoppingItem
-class ShoppingItem {
-  constructor(id, option, quantity) {
-    this.id = id;
-    this.option = option;
-    this.quantity = quantity;
-  }
-}
-const quantity = document.getElementById("quantity");
-const option = document.getElementById("colors");
 
 // Fonction ajout au panier
 function addToCart(event, product) {
