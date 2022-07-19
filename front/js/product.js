@@ -111,11 +111,11 @@ function checkColor() {
 function checkNumber() {
   // on suppose que tout est bon, donc on cache les erreurs au début
   hideError();
-  if (quantity.value > 99) {
-    displayError("Veuillez séléctionner une quantité entre 1 et 99");
+  if (quantity.value > 101) {
+    displayError("Veuillez séléctionner une quantité entre 1 et 100");
   } else if (quantity.value < 1) {
-    displayError("Veuillez séléctionner une quantité entre 1 et 99");
-  } else if (quantity.value > 0 && quantity.value < 100) {
+    displayError("Veuillez séléctionner une quantité entre 1 et 100");
+  } else if (quantity.value > 0 && quantity.value < 101) {
     return true;
   }
 }
