@@ -28,7 +28,8 @@ async function init() {
   // ajout de l'événement sur le bouton "ajouter au panier" en prenant en compte la vérification de la quantité et de la couleur du produit
   const button = document.getElementById("addToCart");
   button.addEventListener("click", (event) => {
-    if (checkNumber() && checkColor()) {
+    if (checkColorAndQuantity()) {
+      // if (checkNumber() && checkColor()) {
       addToCart(event, product);
     }
   });
@@ -77,65 +78,68 @@ class ShoppingItem {
   }
 }
 
-// Vérification de la quantité et de la couleur selectionnée, pour éviter l'ajout d'un produit sans couleur et/ou sans quantité dans le panier
-
-const quantity = document.getElementById("quantity");
+// On vérifie la quantité et la couleur selectionnée, pour éviter l'ajout d'un produit sans couleur et/ou sans quantité dans le panier
 const option = document.getElementById("colors");
+const quantity = document.getElementById("quantity");
 
-// On crée une div pour afficher, s'il y a une erreur de saisi, un texte en dessous de l'input#quantity et du selec#colors
-
+// On créé une div pour afficher un message d'erreur s'il y a une erreur de saisi
 function createErrorMsgHTMLElement() {
-  let errorElement = document.createElement("div");
-  errorElement.setAttribute("id", "error-msg");
-  quantity.after(errorElement);
-  document.getElementById("error-msg").style.background = "#FF4500";
-
   let errorColorElement = document.createElement("div");
   errorColorElement.setAttribute("id", "error-color");
   option.after(errorColorElement);
   document.getElementById("error-color").style.background = "#FF4500";
+
+  let errorQuantityElement = document.createElement("div");
+  errorQuantityElement.setAttribute("id", "error-quantity");
+  quantity.after(errorQuantityElement);
+  document.getElementById("error-quantity").style.background = "#FF4500";
 }
 
-// on vérifie la couleur
-function checkColor() {
-  // on suppose que tout est bon, donc on cache les erreurs au début
-  hideColorError();
-  if (option.value == "") {
-    displayColorError("Veuillez choisir une couleur");
-  } else if (option.value.length > 1) {
-    return true;
-  }
-}
-
-// on vérifie la quantité
-function checkNumber() {
-  // on suppose que tout est bon, donc on cache les erreurs au début
-  hideError();
-  if (quantity.value > 101) {
-    displayError("Veuillez séléctionner une quantité entre 1 et 100");
-  } else if (quantity.value < 1) {
-    displayError("Veuillez séléctionner une quantité entre 1 et 100");
-  } else if (quantity.value > 0 && quantity.value < 101) {
-    return true;
-  }
-}
-
-// Fonctions paramètres pour mettre en exécution les messages d'erreur
-function displayError(msg) {
-  let errorElement = document.getElementById("error-msg");
-  errorElement.innerText = msg;
-}
+// Fonctions pour mettre en exécution les messages d'erreur
+// pour afficher les messages d'erreur
 function displayColorError(msg) {
   let errorColorElement = document.getElementById("error-color");
   errorColorElement.innerText = msg;
 }
-function hideError() {
-  let errorElement = document.getElementById("error-msg");
-  errorElement.innerText = "";
+function displayQuantityError(msg) {
+  let errorQuantityElement = document.getElementById("error-quantity");
+  errorQuantityElement.innerText = msg;
 }
-function hideColorError() {
+// pour cacher les messages d'erreur
+function hideMsgError() {
   let errorColorElement = document.getElementById("error-color");
   errorColorElement.innerText = "";
+  let errorQuantityElement = document.getElementById("error-quantity");
+  errorQuantityElement.innerText = "";
+}
+
+// On vérifie simultanément la couleur et la quantité
+function checkColorAndQuantity() {
+  // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
+  hideMsgError();
+  if (
+    (option.value == "" && quantity.value > 101) ||
+    (option.value == "" && quantity.value < 1)
+  ) {
+    displayColorError("Veuillez choisir une couleur");
+    displayQuantityError("Veuillez séléctionner une quantité entre 1 et 100");
+  } else if (
+    (option.value.length > 1 && quantity.value > 101) ||
+    (option.value.length > 1 && quantity.value < 1)
+  ) {
+    displayQuantityError("Veuillez séléctionner une quantité entre 1 et 100");
+  } else if (
+    (option.value == "" && quantity.value > 0) ||
+    (option.value == "" && quantity.value < 101)
+  ) {
+    displayColorError("Veuillez choisir une couleur");
+  } else if (
+    option.value.length > 1 &&
+    quantity.value > 0 &&
+    quantity.value < 101
+  ) {
+    return true;
+  }
 }
 
 // Fonction ajout au panier, on envoie les caractéristiques du produit
