@@ -97,14 +97,11 @@ function createErrorMsgHTMLElement() {
 
 // Fonctions pour mettre en exécution les messages d'erreur
 // pour afficher les messages d'erreur
-function displayColorError(msg) {
-  let errorColorElement = document.getElementById("error-color");
-  errorColorElement.innerText = msg;
+function displayError(msg, id) {
+  let errorElement = document.getElementById(id);
+  errorElement.innerText = msg;
 }
-function displayQuantityError(msg) {
-  let errorQuantityElement = document.getElementById("error-quantity");
-  errorQuantityElement.innerText = msg;
-}
+
 // pour cacher les messages d'erreur
 function hideMsgError() {
   let errorColorElement = document.getElementById("error-color");
@@ -121,18 +118,24 @@ function checkColorAndQuantity() {
     (option.value == "" && quantity.value > 101) ||
     (option.value == "" && quantity.value < 1)
   ) {
-    displayColorError("Veuillez choisir une couleur");
-    displayQuantityError("Veuillez séléctionner une quantité entre 1 et 100");
+    displayError("Veuillez choisir une couleur", "error-color");
+    displayError(
+      "Veuillez séléctionner une quantité entre 1 et 100",
+      "error-quantity"
+    );
   } else if (
     (option.value.length > 1 && quantity.value > 101) ||
     (option.value.length > 1 && quantity.value < 1)
   ) {
-    displayQuantityError("Veuillez séléctionner une quantité entre 1 et 100");
+    displayError(
+      "Veuillez séléctionner une quantité entre 1 et 100",
+      "error-quantity"
+    );
   } else if (
     (option.value == "" && quantity.value > 0) ||
     (option.value == "" && quantity.value < 101)
   ) {
-    displayColorError("Veuillez choisir une couleur");
+    displayError("Veuillez choisir une couleur", "error-color");
   } else if (
     option.value.length > 1 &&
     quantity.value > 0 &&
