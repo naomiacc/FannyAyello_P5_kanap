@@ -1,7 +1,7 @@
 // On pointe sur l'élément item du document
 const elementItems = document.querySelector("item");
 
-// Récupération de l'ID du produit dans l'API
+// Fonction pour récupérer l'ID du produit dans l'API
 function getProductById() {
   let params = new URL(document.location).searchParams;
   let id = params.get("id");
@@ -16,7 +16,7 @@ function getProductById() {
 }
 console.log(location);
 
-// Passage de paramètre product entre init et builProduct
+// Initialisation des fonctions
 init();
 async function init() {
   product = await getProductById();
@@ -29,13 +29,12 @@ async function init() {
   const button = document.getElementById("addToCart");
   button.addEventListener("click", (event) => {
     if (checkColorAndQuantity()) {
-      // if (checkNumber() && checkColor()) {
       addToCart(event, product);
     }
   });
 }
 
-// Création des éléments du produit dans le DOM
+// Fonction pour créer les élements HTML et ses produits
 
 function builProduct(product) {
   console.log(product);
@@ -82,27 +81,28 @@ class ShoppingItem {
 const option = document.getElementById("colors");
 const quantity = document.getElementById("quantity");
 
-// On créé une div pour afficher un message d'erreur s'il y a une erreur de saisi
+// Fonction pour créer une div afin d'afficher un message d'erreur s'il y a une erreur de saisi
 function createErrorMsgHTMLElement() {
+  // pour la couleur
   let errorColorElement = document.createElement("div");
   errorColorElement.setAttribute("id", "error-color");
   option.after(errorColorElement);
   document.getElementById("error-color").style.background = "#FF4500";
 
+  // pour la quantité
   let errorQuantityElement = document.createElement("div");
   errorQuantityElement.setAttribute("id", "error-quantity");
   quantity.after(errorQuantityElement);
   document.getElementById("error-quantity").style.background = "#FF4500";
 }
 
-// Fonctions pour mettre en exécution les messages d'erreur
-// pour afficher les messages d'erreur
+// Fonction pour afficher les messages d'erreur
 function displayError(msg, id) {
   let errorElement = document.getElementById(id);
   errorElement.innerText = msg;
 }
 
-// pour cacher les messages d'erreur
+// Fonction pour cacher les messages d'erreur
 function hideMsgError() {
   let errorColorElement = document.getElementById("error-color");
   errorColorElement.innerText = "";
@@ -110,7 +110,7 @@ function hideMsgError() {
   errorQuantityElement.innerText = "";
 }
 
-// On vérifie simultanément la couleur et la quantité
+// Fonction pour vérifier simultanément la couleur et la quantité
 function checkColorAndQuantity() {
   // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
   hideMsgError();
@@ -145,9 +145,10 @@ function checkColorAndQuantity() {
   }
 }
 
-// Fonction ajout au panier, on envoie les caractéristiques du produit
+// Fonction pour ajouter un/des produit(s) au panier
 function addToCart(event, product) {
   event.preventDefault();
+  // on récupère les caractéristiques du produit dans la variable
   let shoppingItem = {
     quantity: quantity.value,
     option: option.value,
@@ -165,14 +166,15 @@ const popupConfirmation = () => {
   window.alert(`Le produit a été ajouté au panier`);
 };
 
-//Création du localStorage
+// Fonction pour créer le localStorage avec ses produits
 function saveDataLS(shoppingItem) {
   let shoppingCartLocalStorage = JSON.parse(
     localStorage.getItem("shoppingCart")
   );
   console.log(shoppingCartLocalStorage);
 
-  // Si produit déjà enregistré dans le panier
+  // Si le produit est déjà enregistré dans le panier, alors on fait appel à la fonction productChecked (ligne 203)
+  // cette dernière vérifiera s'il s'agit du même ID et de la même couleur (option)
   if (shoppingCartLocalStorage) {
     console.log("je suis déjà dans le panier");
     let result = productChecked(shoppingCartLocalStorage, shoppingItem);
@@ -181,7 +183,7 @@ function saveDataLS(shoppingItem) {
     popupConfirmation();
   }
 
-  // Si le produit n'a pas encore été enregistré dans le panier
+  // Si le produit n'a pas encore été enregistré dans le panier, alors on pousse le nouveau produit dans le LS
   else if (shoppingCartLocalStorage == null || shoppingCartLocalStorage == []) {
     console.log(shoppingItem);
     console.log(shoppingCartLocalStorage);
@@ -199,7 +201,7 @@ function saveDataLS(shoppingItem) {
 
 // Fonction pour éviter les doublons dans la panier : on appelle les variables à comparer
 function productChecked(shoppingCartLocalStorage, shoppingItem) {
-  // On recherche et vérifie si les deux variables ont le même id et la même option
+  // on recherche et vérifie si les deux variables ont le même id et la même option
   const object = shoppingCartLocalStorage.find(
     (element) =>
       element._id === shoppingItem._id && element.option === shoppingItem.option

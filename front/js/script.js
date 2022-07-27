@@ -1,7 +1,7 @@
 // On pointe sur l'élément items du document
 const elementItems = document.getElementById("items");
 
-// Récupération des produits de l'API
+// Fonction pour récupérer les produits de l'API
 function getProducts() {
   return fetch("http://localhost:3000/api/products")
     .then((res) => res.json())
@@ -13,7 +13,7 @@ function getProducts() {
     });
 }
 
-// Passage de paramètre product entre init et createHTML
+// Initialisation des fonctions. Passage de paramètre product entre init et createHTML
 
 init();
 async function init() {
@@ -23,7 +23,7 @@ async function init() {
   });
 }
 
-// Création des éléments produits dans le DOM
+// Fonction pour créer les éléments HTML avec ses produits
 
 function createHTML(product) {
   console.log(product);
