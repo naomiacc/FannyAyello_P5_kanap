@@ -196,21 +196,21 @@ async function calculTotalPrice() {
 
 ////**** FORMULAIRE****////
 
-// Variables du formulaire Contact
+// Variables couleurs
 let color1 = "#7cdc16";
 let color2 = "#f03c0c";
-// Mise en place des RegEx les plus larges possibles pour éviter les erreurs de caratéres
+// Variables RegEx les plus larges possibles pour éviter les erreurs de caratéres
 let RegEx1 =
   /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
 let RegEx2 = /^[a-zA-Z\-1-9]+$/;
 
 // Formulaire Contact
 addEventListener("change", () => {
-  //Vérification FirstName(prénom)
+  //Fonction pour vérifier le prénom
   function validFirstName() {
     let firstName = document.getElementById("firstName").value;
     let text = document.getElementById("firstNameErrorMsg");
-    // Prise en compte les Regex
+    // Prise en compte des Regex
     let pattern = RegEx1;
     let number = RegEx2;
 
@@ -227,7 +227,7 @@ addEventListener("change", () => {
     }
   }
 
-  // Vérification LastName(Nom)
+  // Fonction pour vérifier le nom
   function validLastName() {
     let lastName = document.getElementById("lastName").value;
     let text = document.getElementById("lastNameErrorMsg");
@@ -247,7 +247,7 @@ addEventListener("change", () => {
     }
   }
 
-  //Vérification address(adresse)
+  // Fonction pour vérifier l'adresse postale
   function validAddress() {
     let address = document.getElementById("address").value;
     let text = document.getElementById("addressErrorMsg");
@@ -263,7 +263,7 @@ addEventListener("change", () => {
       text.style.color = color2;
     }
   }
-  // Vérification City(ville)
+  // Fonction pour vérifier la ville
   function validCity() {
     let city = document.getElementById("city").value;
     let text = document.getElementById("cityErrorMsg");
@@ -278,7 +278,7 @@ addEventListener("change", () => {
       text.style.color = color2;
     }
   }
-  //Vérification Email(adresse mail)
+  //Fonction pour vérifier l'Email
   function validEmail() {
     let mail = document.getElementById("email").value;
     let text = document.getElementById("emailErrorMsg");
@@ -297,10 +297,106 @@ addEventListener("change", () => {
     }
   }
 
-  // Appels pour alertes sur DOM
+  // On appelle les fonctions pour qu'elles puissent s'afficher sur le DOM
   validFirstName();
   validLastName();
   validAddress();
   validCity();
   validEmail();
 });
+
+// On consitute l'objet contact pour l'envoyer au LocalStorage
+let products = [];
+let saveContactLocalStorage = JSON.parse(localStorage.getItem("contact"));
+let sendContact = document.getElementById("order");
+sendContact.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // On créé l'objet contact, les valeurs sont vérifiées par les fonctions
+  let contact = {
+    firstName: validFirstName(),
+    lastName: validLastName(),
+    address: validAddress(),
+    city: validCity(),
+    email: validEmail(),
+  };
+
+  // On ajoute le nouveau contact dans le localStorage
+  let addContactLocalStorage = () => {
+    saveContactLocalStorage = [];
+    saveContactLocalStorage.push(contact);
+    localStorage.setItem("contact", JSON.stringify(saveContactLocalStorage));
+  };
+  // On modifie le contact si besoin
+  let modifyContactLocalStorage = () => {
+    saveContactLocalStorage = contact;
+    localStorage.setItem("contact", JSON.stringify(saveContactLocalStorage));
+  };
+
+  // Si l'objet a une key non défini, on n'exécute pas le code
+  if (
+    contact.firstName == undefined ||
+    contact.lastName == undefined ||
+    contact.address == undefined ||
+    contact.city == undefined ||
+    contact.email == undefined
+  ) {
+    return false;
+  } else {
+    // Si pas de contact dans le localStorage, on crée le tableau
+    if (!saveContactLocalStorage) {
+      addContactLocalStorage();
+    }
+    // on modifie le contact en temps réel
+    else {
+      modifyContactLocalStorage();
+    }
+  }
+  // on créé une constante pour lier l'API avec la commande
+  const toSend = {
+    contact,
+    products,
+  };
+  //on met en place le lien avec API de la commande
+  const promiseOne = fetch("http://localhost:3000/api/products/order", {
+    method: "POST",
+    body: JSON.stringify(toSend),
+    headers: {
+      "Content-type": "application/json",
+    },
+  });
+
+  // Pour voir le résultat du serveur dans la console
+  promiseOne.then(async (response) => {
+    try {
+      const content = await response.json();
+
+      if (response.ok && shoppingCartLocalStorage) {
+        // Redirection vers la page confirmation
+        window.location = `../html/confirmation.html?id=${content.orderId}`;
+      } else {
+        console.log(`Réponse du serveur : `, response.status);
+      }
+    } catch (error) {
+      console.log("Erreur qui vient du catch : ", error);
+    }
+  });
+});
+
+// On rajoute la quantité totale à côté du panier pour contrôle
+let cart = () => {
+  let panier = document
+    .getElementsByTagName("nav")[0]
+    .getElementsByTagName("li")[1];
+
+  letshoppingCartLocalStorage = JSON.parse(localStorage.getItem("products"));
+
+  let sum = 0;
+  for (let q in shoppingCartLocalStorage) {
+    let loop = parseInt(shoppingCartLocalStorage[q].quantity);
+    sum += loop;
+  }
+
+  panier.innerHTML = `Panier <span id="test" style='color:purple'>${"("}${sum}${")"}</span>`;
+};
+cart();
