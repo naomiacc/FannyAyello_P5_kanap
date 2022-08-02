@@ -314,11 +314,11 @@ sendContact.addEventListener("click", (e) => {
 
   // On créé l'objet contact, les valeurs sont vérifiées par les fonctions
   let contact = {
-    firstName: validFirstName(),
-    lastName: validLastName(),
-    address: validAddress(),
-    city: validCity(),
-    email: validEmail(),
+    firstName: firstName.value,
+    lastName: lastName.value,
+    address: address.value,
+    city: city.value,
+    email: email.value,
   };
 
   // On ajoute le nouveau contact dans le localStorage
