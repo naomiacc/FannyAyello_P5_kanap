@@ -51,16 +51,9 @@ async function init() {
 
   AddEventRemoveQuantity();
 
-  // createErrorMsgHTMLElement();
+  createErrorMsgHTMLElement();
 
   AddEventChangeQuantity();
-
-  // const item = document.getElementsByClassName("itemQuantity");
-  // item.addEventListener("click", (event) => {
-  //   if (checkQuantity()) {
-  //     AddEventChangeQuantity(event, product);
-  //   }
-  // });
 
   calculTotalQuantity();
   calculTotalPrice();
@@ -125,51 +118,53 @@ function AddEventChangeQuantity() {
 
   quantityContainer.forEach((shoppingItem, index) => {
     shoppingItem.addEventListener("change", () => {
-      // Au click, on modifie l'objet sur le LocalStorage et le DOM
-      shoppingCartLocalStorage[index].quantity = quantityContainer[index].value;
-      localStorage.setItem(
-        "shoppingCart",
-        JSON.stringify(shoppingCartLocalStorage)
-      );
-      location.reload();
+      if (checkQuantity()) {
+        shoppingCartLocalStorage[index].quantity =
+          quantityContainer[index].value;
+        localStorage.setItem(
+          "shoppingCart",
+          JSON.stringify(shoppingCartLocalStorage)
+        );
+        location.reload();
+      }
     });
   });
 }
 
-// // On vérifie la quantité selectionnée
-// const itemQuantity = document.getElementsByClassName("itemQuantity");
+// On vérifie la quantité selectionnée
+const itemQuantity = document.getElementsByClassName("itemQuantity");
 
-// // Fonction pour créer une div afin d'afficher un message d'erreur s'il y a une erreur de saisi
-// function createErrorMsgHTMLElement() {
-//   let errorQuantityElement = document.createElement("div");
-//   errorQuantityElement.setAttribute("id", "error-quantity");
-//   itemQuantity.after(errorQuantityElement);
-//   document.getElementById("error-quantity").style.background = "#FF4500";
-//   console.log();
-// }
+// Fonction pour créer une div afin d'afficher un message d'erreur s'il y a une erreur de saisi
+function createErrorMsgHTMLElement() {
+  let errorQuantityElement = document.createElement("div");
+  errorQuantityElement.setAttribute("id", "error-quantity");
+  itemQuantity.after(errorQuantityElement);
+  document.getElementById("error-quantity").style.background = "#FF4500";
+  console.log();
+}
 
-// // Fonction pour afficher les messages d'erreur
-// function displayError(msg, id) {
-//   let errorElement = document.getElementsById("error-quantity");
-//   errorElement.innerText = msg;
-// }
+// Fonction pour afficher les messages d'erreur
+function displayError(msg, id) {
+  let errorElement = document.getElementsById("error-quantity");
+  errorElement.innerText = msg;
+}
 
-// // Fonction pour cacher les messages d'erreur
-// function hideMsgError() {
-//   let errorQuantityElement = document.getElementById("error-quantity");
-//   errorQuantityElement.innerText = "";
-// }
+// Fonction pour cacher les messages d'erreur
+function hideMsgError() {
+  let errorQuantityElement = document.getElementById("error-quantity");
+  errorQuantityElement.innerText = "";
+}
 
-// // Fonction pour vérifier la quantité du produit
-// function checkQuantity() {
-//   // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
-//   hideMsgError();
-//   if (itemQuantity.value < 1 || itemQuantity.value > 101) {
-//     displayError("Veuillez séléctionner une quantité entre 1 et 100");
-//   } else if (itemQuantity.value > 1 || itemQuantity.value < 101) {
-//     return true;
-//   }
-// }
+// Fonction pour vérifier la quantité du produit
+function checkQuantity() {
+  // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
+  hideMsgError();
+  if (itemQuantity.value < 1 || itemQuantity.value > 100) {
+    displayError("Veuillez séléctionner une quantité entre 1 et 100");
+  } else if (itemQuantity.value > 0 || itemQuantity.value < 101) {
+    return true;
+  }
+}
 
 // Fonction pour calculer le nombre de produit total dans le panier
 function calculTotalQuantity() {
@@ -199,13 +194,22 @@ async function calculTotalPrice() {
 // Variables couleurs
 let color1 = "#7cdc16";
 let color2 = "#f03c0c";
-// Variables RegEx les plus larges possibles pour éviter les erreurs de caratéres
-let RegEx1 =
-  /^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$/u;
+
+// Variables RegEx pour éviter les erreurs de caratéres
+let RegEx1 = /^(?=.{2,40}$)[a-zA-Z]+(?:[-'\s][a-zA-Z]+)*$/;
 let RegEx2 = /^[a-zA-Z\-1-9]+$/;
+
+let checkFormulaire = {
+  firstName: false,
+  lastName: false,
+  address: false,
+  city: false,
+  email: false,
+};
 
 // Formulaire Contact
 addEventListener("change", () => {
+  console.log(checkFormulaire);
   //Fonction pour vérifier le prénom
   function validFirstName() {
     let firstName = document.getElementById("firstName").value;
@@ -217,13 +221,16 @@ addEventListener("change", () => {
     if (firstName.match(pattern)) {
       text.innerHTML = "Prénom valide";
       text.style.color = color1;
+      checkFormulaire.firstName = true;
       return firstName;
     } else if (firstName.match(number)) {
       text.innerHTML = "Les chiffres ne sont pas tolérés";
       text.style.color = color2;
+      checkFormulaire.firstName = false;
     } else {
       text.innerHTML = "Merci de rentrer un prénom valide";
       text.style.color = color2;
+      checkFormulaire.firstName = false;
     }
   }
 
@@ -237,13 +244,16 @@ addEventListener("change", () => {
     if (lastName.match(pattern)) {
       text.innerHTML = "Nom valide";
       text.style.color = color1;
+      checkFormulaire.lastName = true;
       return lastName;
     } else if (lastName.match(number)) {
       text.innerHTML = "Les chiffres ne sont pas tolérés";
       text.style.color = color2;
+      checkFormulaire.lastName = false;
     } else {
       text.innerHTML = "Merci de rentrer un nom valide";
       text.style.color = color2;
+      checkFormulaire.lastName = false;
     }
   }
 
@@ -256,11 +266,13 @@ addEventListener("change", () => {
     if (address.match(pattern)) {
       text.innerHTML = "Adresse postale valide";
       text.style.color = color1;
+      checkFormulaire.address = true;
       return address;
     } else {
       text.innerHTML =
         "Merci de rentrer une adresse valide (ex : 12 rue des baies 64500)";
       text.style.color = color2;
+      checkFormulaire.address = false;
     }
   }
   // Fonction pour vérifier la ville
@@ -272,10 +284,12 @@ addEventListener("change", () => {
     if (city.match(pattern)) {
       text.innerHTML = "Ville valide";
       text.style.color = color1;
+      checkFormulaire.city = true;
       return city;
     } else {
       text.innerHTML = "Merci de rentrer une ville valide";
       text.style.color = color2;
+      checkFormulaire.city = false;
     }
   }
   //Fonction pour vérifier l'Email
@@ -290,10 +304,12 @@ addEventListener("change", () => {
     if (mail.match(pattern)) {
       text.innerHTML = "Adresse email valide";
       text.style.color = color1;
+      checkFormulaire.email = true;
       return mail;
     } else {
       text.innerHTML = "Merci de rentrer une adresse valide";
       text.style.color = color2;
+      checkFormulaire.email = false;
     }
   }
 
@@ -305,14 +321,9 @@ addEventListener("change", () => {
   validEmail();
 });
 
-// On consitute l'objet contact pour l'envoyer au LocalStorage
-let products = [];
-let saveContactLocalStorage = JSON.parse(localStorage.getItem("contact"));
-let sendContact = document.getElementById("order");
-sendContact.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  // On créé l'objet contact, les valeurs sont vérifiées par les fonctions
+// Fonction pour envoyer le formulaire au LocalStorage et faire apparaitre la page de confirmation
+function sendOrder() {
+  // on créé l'objet contact
   let contact = {
     firstName: firstName.value,
     lastName: lastName.value,
@@ -321,42 +332,18 @@ sendContact.addEventListener("click", (e) => {
     email: email.value,
   };
 
-  // On ajoute le nouveau contact dans le localStorage
-  let addContactLocalStorage = () => {
-    saveContactLocalStorage = [];
-    saveContactLocalStorage.push(contact);
-    localStorage.setItem("contact", JSON.stringify(saveContactLocalStorage));
-  };
-  // On modifie le contact si besoin
-  let modifyContactLocalStorage = () => {
-    saveContactLocalStorage = contact;
-    localStorage.setItem("contact", JSON.stringify(saveContactLocalStorage));
-  };
-
-  // Si l'objet a une key non défini, on n'exécute pas le code
-  if (
-    contact.firstName == undefined ||
-    contact.lastName == undefined ||
-    contact.address == undefined ||
-    contact.city == undefined ||
-    contact.email == undefined
-  ) {
-    return false;
-  } else {
-    // Si pas de contact dans le localStorage, on crée le tableau
-    if (!saveContactLocalStorage) {
-      addContactLocalStorage();
-    }
-    // on modifie le contact en temps réel
-    else {
-      modifyContactLocalStorage();
-    }
+  // on crée le tableau consituté des ID des produits à partir du LS
+  let products = [];
+  for (let i = 0; i < shoppingCartLocalStorage.length; i++) {
+    products.push(shoppingCartLocalStorage[i].__id);
   }
+
   // on créé une constante pour lier l'API avec la commande
   const toSend = {
     contact,
     products,
   };
+
   //on met en place le lien avec API de la commande
   const promiseOne = fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -381,6 +368,29 @@ sendContact.addEventListener("click", (e) => {
       console.log("Erreur qui vient du catch : ", error);
     }
   });
+}
+
+// On ajoute un événement au click pour vérifier que le formulaire est correctement rempli avant de l'envoyer au LS
+let sendContact = document.getElementById("order");
+
+sendContact.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // On suppose que tout le formulaire est valide
+  let formOK = true;
+
+  // On vérifie que toutes les entrées input sont true dans checkFormulaire
+  // Si une entrée est false, on passe formOK à false
+  for (let input in checkFormulaire) {
+    if (checkFormulaire[input] === false) {
+      formOK = false;
+    }
+  }
+  console.log(formOK);
+  // si formOK est true, on peut valider la commande, sinon on ne fait rien
+  if (formOK === true) {
+    sendOrder();
+  }
 });
 
 // On rajoute la quantité totale à côté du panier pour contrôle
