@@ -49,7 +49,7 @@ async function init() {
   let panierComplet = await getProduct();
   createHTMLBasket(panierComplet);
 
-  AddEventRemoveQuantity();
+  AddEventRemoveProduct();
 
   createErrorMsgHTMLElement();
 
@@ -93,7 +93,7 @@ function createHTMLBasket(panierComplet) {
 }
 
 // Fonction pour supprimer un produit dans le panier
-function AddEventRemoveQuantity() {
+function AddEventRemoveProduct() {
   let deleteItemContainer = [...document.getElementsByClassName("deleteItem")];
 
   deleteItemContainer.forEach((item, index) => {
@@ -111,6 +111,8 @@ function AddEventRemoveQuantity() {
     });
   });
 }
+
+//let pickInput = deleteItemContainer[index].closest(".itemQuantity");
 
 // Fonction pour modifier la quantité d'un produit dans le panier
 function AddEventChangeQuantity() {
@@ -208,8 +210,17 @@ let checkFormulaire = {
 };
 
 // Formulaire Contact
-addEventListener("change", () => {
+addEventListener("change", (e) => {
+  e.preventDefault();
+
   console.log(checkFormulaire);
+
+  // Si le clic vient de l'input quantité, on stoppe
+  console.log(e.target.name);
+  if (e.target.name === "itemQuantity") {
+    return;
+  }
+
   //Fonction pour vérifier le prénom
   function validFirstName() {
     let firstName = document.getElementById("firstName").value;
@@ -335,7 +346,7 @@ function sendOrder() {
   // on crée le tableau consituté des ID des produits à partir du LS
   let products = [];
   for (let i = 0; i < shoppingCartLocalStorage.length; i++) {
-    products.push(shoppingCartLocalStorage[i].__id);
+    products.push(shoppingCartLocalStorage[i]._id);
   }
 
   // on créé une constante pour lier l'API avec la commande
