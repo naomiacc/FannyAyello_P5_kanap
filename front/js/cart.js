@@ -20,7 +20,7 @@ async function getProduct() {
       .then((products) => {
         //console.log(i);
         //console.log(products);
-        // console.log(shoppingCartLocalStorage[i]); //
+        // console.log(shoppingCartLocalStorage[i]);
 
         // on créé un objet comporant les propriétés et les valeurs nécessaires pour consituer le panier
         const obj = {
@@ -50,8 +50,6 @@ async function init() {
   createHTMLBasket(panierComplet);
 
   AddEventRemoveProduct();
-
-  createErrorMsgHTMLElement();
 
   AddEventChangeQuantity();
 
@@ -112,59 +110,54 @@ function AddEventRemoveProduct() {
   });
 }
 
-//let pickInput = deleteItemContainer[index].closest(".itemQuantity");
-
 // Fonction pour modifier la quantité d'un produit dans le panier
 function AddEventChangeQuantity() {
-  let quantityContainer = [...document.getElementsByClassName("itemQuantity")];
-
-  quantityContainer.forEach((shoppingItem, index) => {
-    shoppingItem.addEventListener("change", () => {
-      if (checkQuantity()) {
-        shoppingCartLocalStorage[index].quantity =
-          quantityContainer[index].value;
-        localStorage.setItem(
-          "shoppingCart",
-          JSON.stringify(shoppingCartLocalStorage)
-        );
-        location.reload();
-      }
+  const quantityInput = document.querySelectorAll(".itemQuantity");
+  quantityInput.forEach((quantityProduct) => {
+    quantityProduct.addEventListener("change", (e) => {
+      changeQuantity(e);
     });
   });
 }
 
-// On vérifie la quantité selectionnée
-const itemQuantity = document.getElementsByClassName("itemQuantity");
+function changeQuantity(e) {
+  // On récupère l'input le plus proche de l'élément cliqué
+  const quantityElement = e.target.closest("input.itemQuantity").value; //cibler l'input pour le changement de quantité
+  console.log("quantitée de input", quantityElement);
 
-// Fonction pour créer une div afin d'afficher un message d'erreur s'il y a une erreur de saisi
-function createErrorMsgHTMLElement() {
-  let errorQuantityElement = document.createElement("div");
-  errorQuantityElement.setAttribute("id", "error-quantity");
-  itemQuantity.after(errorQuantityElement);
-  document.getElementById("error-quantity").style.background = "#FF4500";
-  console.log();
-}
+  if (quantityElement != null) {
+    // On récupère les id et color du produit pour aller le chercher dans le LS
+    const productId = e.target
+      .closest("article.cart__item")
+      .getAttribute("data-id");
+    const productColor = e.target
+      .closest("article.cart__item")
+      .getAttribute("data-color");
 
-// Fonction pour afficher les messages d'erreur
-function displayError(msg, id) {
-  let errorElement = document.getElementsById("error-quantity");
-  errorElement.innerText = msg;
-}
+    //on vas chercher le contenu du LS
+    let cart = JSON.parse(localStorage.getItem("shoppingCart"));
 
-// Fonction pour cacher les messages d'erreur
-function hideMsgError() {
-  let errorQuantityElement = document.getElementById("error-quantity");
-  errorQuantityElement.innerText = "";
-}
+    // On recherche le produit correspondant
+    let foundProduct = cart.findIndex(
+      (p) => p._id === productId && p.option === productColor
+    );
+    console.log("Recherche du produit, index :", foundProduct);
 
-// Fonction pour vérifier la quantité du produit
-function checkQuantity() {
-  // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
-  hideMsgError();
-  if (itemQuantity.value < 1 || itemQuantity.value > 100) {
-    displayError("Veuillez séléctionner une quantité entre 1 et 100");
-  } else if (itemQuantity.value > 0 || itemQuantity.value < 101) {
-    return true;
+    // Si on le trouve et que la quantité est inférieur ou égale à 100 et suppérieur ou égale à 1, on modifie le panier LS
+    if (
+      foundProduct != undefined &&
+      quantityElement <= 100 &&
+      quantityElement >= 1
+    ) {
+      //ajouter la nouvelle quantité au LS
+      cart[foundProduct].quantity = quantityElement;
+
+      console.log("Futur LS ajusté", cart);
+      // On repush le LS tout neuf
+      localStorage.setItem("shoppingCart", JSON.stringify(cart));
+
+      location.reload();
+    }
   }
 }
 
@@ -187,6 +180,8 @@ async function calculTotalPrice() {
     const shoppingItem = getProduct();
     totalPrice += product.quantity * product.price;
   }
+
+  console.log("total", totalPrice);
   let totalPriceCart = document.getElementById("totalPrice");
   totalPriceCart.innerText = totalPrice;
 }
@@ -212,8 +207,6 @@ let checkFormulaire = {
 // Formulaire Contact
 addEventListener("change", (e) => {
   e.preventDefault();
-
-  console.log(checkFormulaire);
 
   // Si le clic vient de l'input quantité, on stoppe
   console.log(e.target.name);
@@ -381,7 +374,7 @@ function sendOrder() {
   });
 }
 
-// On ajoute un événement au click pour vérifier que le formulaire est correctement rempli avant de l'envoyer au LS
+// On ajoute un événement au clic pour vérifier que le formulaire est correctement rempli avant de l'envoyer au LS
 let sendContact = document.getElementById("order");
 
 sendContact.addEventListener("click", (e) => {
@@ -412,12 +405,12 @@ let cart = () => {
 
   letshoppingCartLocalStorage = JSON.parse(localStorage.getItem("products"));
 
-  let sum = 0;
+  let totalQty = 0;
   for (let q in shoppingCartLocalStorage) {
     let loop = parseInt(shoppingCartLocalStorage[q].quantity);
-    sum += loop;
+    totalQty += loop;
   }
 
-  panier.innerHTML = `Panier <span id="test" style='color:purple'>${"("}${sum}${")"}</span>`;
+  panier.innerHTML = `Panier <span id="test" style='color:purple'>${"("}${totalQty}${")"}</span>`;
 };
 cart();
