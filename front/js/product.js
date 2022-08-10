@@ -115,7 +115,7 @@ function checkColorAndQuantity() {
   // on part du principe que les champs de saisi sont corrects et que l'on cache les messages d'erreur. Sinon, on les affiche.
   hideMsgError();
   if (
-    (option.value == "" && quantity.value > 101) ||
+    (option.value == "" && quantity.value > 100) ||
     (option.value == "" && quantity.value < 1)
   ) {
     displayError("Veuillez choisir une couleur", "error-color");
@@ -124,7 +124,7 @@ function checkColorAndQuantity() {
       "error-quantity"
     );
   } else if (
-    (option.value.length > 1 && quantity.value > 101) ||
+    (option.value.length > 1 && quantity.value > 100) ||
     (option.value.length > 1 && quantity.value < 1)
   ) {
     displayError(
