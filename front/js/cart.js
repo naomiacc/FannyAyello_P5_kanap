@@ -9,28 +9,29 @@ async function getProduct() {
   // on créé un tableau pour constituer le panier complet
   let panierComplet = [];
 
+  // LS à jour
+  let CartLocalStorage = JSON.parse(localStorage.getItem("shoppingCart"));
+
   // la boucle attend que le fetch soit fini pour chaque tour de boucle
-  for (i = 0; i < shoppingCartLocalStorage.length; i++) {
-    await fetch(
-      "http://localhost:3000/api/products/" + shoppingCartLocalStorage[i]._id
-    )
+  for (i = 0; i < CartLocalStorage.length; i++) {
+    await fetch("http://localhost:3000/api/products/" + CartLocalStorage[i]._id)
       .then(function (res) {
         return res.json();
       })
       .then((products) => {
         //console.log(i);
         //console.log(products);
-        // console.log(shoppingCartLocalStorage[i]);
+        // console.log(CartLocalStorage[i]);
 
         // on créé un objet comporant les propriétés et les valeurs nécessaires pour consituer le panier
         const obj = {
           _id: products._id,
           name: products.name,
           price: products.price,
-          color: shoppingCartLocalStorage[i].option,
-          quantity: shoppingCartLocalStorage[i].quantity,
+          color: CartLocalStorage[i].option,
+          quantity: CartLocalStorage[i].quantity,
           alt: products.altTxt,
-          img: shoppingCartLocalStorage[i].image,
+          img: products.imageUrl,
         };
         // on pousse l'objet dans le tableau créé
         panierComplet.push(obj);
@@ -105,7 +106,8 @@ function AddEventRemoveProduct() {
         "shoppingCart",
         JSON.stringify(shoppingCartLocalStorage)
       );
-      location.reload();
+      calculTotalPrice();
+      calculTotalQuantity();
     });
   });
 }
@@ -116,6 +118,8 @@ function AddEventChangeQuantity() {
   quantityInput.forEach((quantityProduct) => {
     quantityProduct.addEventListener("change", (e) => {
       changeQuantity(e);
+      calculTotalPrice();
+      calculTotalQuantity();
     });
   });
 }
@@ -155,8 +159,6 @@ function changeQuantity(e) {
       console.log("Futur LS ajusté", cart);
       // On repush le LS tout neuf
       localStorage.setItem("shoppingCart", JSON.stringify(cart));
-
-      location.reload();
     }
   }
 }
@@ -164,8 +166,9 @@ function changeQuantity(e) {
 // Fonction pour calculer le nombre de produit total dans le panier
 function calculTotalQuantity() {
   let number = 0;
-  for (let j = 0; j < shoppingCartLocalStorage.length; j++) {
-    let quantityLoop = parseInt(shoppingCartLocalStorage[j].quantity);
+  let CartLocalStorage = JSON.parse(localStorage.getItem("shoppingCart"));
+  for (let j = 0; j < CartLocalStorage.length; j++) {
+    let quantityLoop = parseInt(CartLocalStorage[j].quantity);
     number += quantityLoop;
   }
   let totalQuantity = document.getElementById("totalQuantity");
@@ -177,13 +180,13 @@ async function calculTotalPrice() {
   const shoppingItem = await getProduct();
   let totalPrice = 0;
   for (let product of shoppingItem) {
-    const shoppingItem = getProduct();
     totalPrice += product.quantity * product.price;
   }
 
   console.log("total", totalPrice);
   let totalPriceCart = document.getElementById("totalPrice");
   totalPriceCart.innerText = totalPrice;
+  return totalPrice;
 }
 
 ////**** FORMULAIRE****////
@@ -204,8 +207,10 @@ let checkFormulaire = {
   email: false,
 };
 
-// Formulaire Contact
-addEventListener("change", (e) => {
+// Formulaire Contact, vérification du formulaire uniquement au clic sur le bouton commander
+
+const button = document.getElementById("order");
+button.addEventListener("click", (e) => {
   e.preventDefault();
 
   // Si le clic vient de l'input quantité, on stoppe
